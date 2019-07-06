@@ -22,6 +22,7 @@
 #include <array>
 #include <functional>
 #include <thread>
-#include <queue>
+#include <unordered_map>
 #include <mutex>
 #include <condition_variable>
+#include <bitset>

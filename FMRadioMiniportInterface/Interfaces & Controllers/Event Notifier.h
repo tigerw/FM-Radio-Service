@@ -11,9 +11,14 @@ class EventNotifier
 	IMiniportFmRxDevice *& MiniportReceiveDevice;
 	FmController & TopologyController;
 
-	std::mutex QueueMutex;
-	std::queue<Notification> Events;
+	std::mutex EventsMutex;
+	std::unordered_map<Client, std::bitset<2>> Events;
 	std::condition_variable NewEvent;
+
+	static const size_t FrequencyBit = 0;
+	static const size_t PlayStateBit = 1;
+
+	size_t AsyncContextToBit(HTUNER_ASYNCCTXT);
 
 public:
 	EventNotifier(IMiniportFmRxDevice *&, FmController &);
@@ -21,7 +26,21 @@ public:
 	/// <summary>Blocks until there is one new event in the queue, then processes it.</summary>
 	/// <remarks>Should be called in a loop to continuously process asynchronous events.</remarks>
 	/// <returns>A <see cref="Notification" /> structure with all relevant data needed by the client to update their UI for a given event.</returns>
-	Notification AcquireEvent();
+	void AcquireEvent(Client, Notification *);
 
 	void OnRadioEvent(HTUNER_ASYNCCTXT);
+
+	void OnClientAdded(Client);
 };
+
+namespace NotifierHandles
+{
+	enum class AsyncContextHandle
+	{
+		/* Start at 1 since this is type-punned into a HANDLE pointer, and we all know what a 0 pointer means... */
+		FrequencyChange = 1,
+		PlayStateChange = 2
+	};
+
+	HTUNER_ASYNCCTXT AsyncContextToHANDLE(AsyncContextHandle);
+}

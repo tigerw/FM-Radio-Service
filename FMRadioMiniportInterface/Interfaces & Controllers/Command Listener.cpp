@@ -6,6 +6,16 @@
 
 CommandListener * Server;
 
+void __RPC_FAR* __RPC_USER midl_user_allocate(size_t len)
+{
+	return operator new(len);
+}
+
+void __RPC_USER midl_user_free(void __RPC_FAR* ptr)
+{
+	delete ptr;
+}
+
 void DisableRadio()
 {
 	Server->DisableRadio();
@@ -26,17 +36,14 @@ void EnableRadio()
 	Server->EnableRadio();
 }
 
-Notification AcquireEvent()
+void AcquireEvent(Client ClientId, Notification * Event)
 {
-	while (true)
-	{
-		return Server->AcquireEvent();
-	}
+	Server->AcquireEvent(ClientId, Event);
 }
 
-void QueueInitialStateEvents()
+Client AcquireClientId()
 {
-	return Server->QueueInitialStateEvents();
+	return Server->AcquireClientId();
 }
 
 CommandListener::CommandListener(FmController & Controller) :
@@ -82,68 +89,55 @@ void CommandListener::Listen()
 	RPCServer::Listen(MiniportServiceInterface_v1_0_s_ifspec, Endpoint);
 }
 
-Notification CommandListener::AcquireEvent()
+void CommandListener::AcquireEvent(Client ClientId, Notification * Event)
 {
-	return Notifier.AcquireEvent();
+	Notifier.AcquireEvent(ClientId, Event);
 }
 
-void CommandListener::QueueInitialStateEvents()
+Client CommandListener::AcquireClientId()
 {
-	Notifier.OnRadioEvent(reinterpret_cast<HANDLE>(1));
-	Notifier.OnRadioEvent(reinterpret_cast<HANDLE>(1));
-	Notifier.OnRadioEvent(reinterpret_cast<HANDLE>(2));
+	const auto ClientId = rand();
+	Notifier.OnClientAdded(ClientId);
+
+	using namespace NotifierHandles;
+	Notifier.OnRadioEvent(AsyncContextToHANDLE(AsyncContextHandle::FrequencyChange));
+	Notifier.OnRadioEvent(AsyncContextToHANDLE(AsyncContextHandle::PlayStateChange));
+
+	return ClientId;
 }
 
 void CommandListener::EnableRadio()
 {
-	//TUNER_POWERSTATE Power;
-	//auto PowerResult = MiniportTunerDevice->GetPowerState(&Power);
-	//std::wcout << "Powerstate: " << Power << std::endl;
-	//std::wcout << "Error message: " << std::error_code(PowerResult, std::system_category()).message() << std::endl;
-
-	//std::wcout << "Now setting powerstate." << std::endl;
 	TopologyController.SetFmState(true);
-	Notifier.OnRadioEvent(reinterpret_cast<HANDLE>(2));
-	//std::wcout << "Error message: " << std::error_code(PowerResult, std::system_category()).message() << std::endl;
 
-	//PowerResult = MiniportTunerDevice->GetPowerState(&Power);
-	//std::wcout << "Powerstate readback: " << Power << std::endl;
-	//std::wcout << "Error message: " << std::error_code(PowerResult, std::system_category()).message() << std::endl;
-
-
-	//std::wcout << "Setting frequency: 75 microsecond emphasis, European limits" << std::endl;
-	//FM_REGIONPARAMS p;
-	//p.Emphasis = FM_EMPHASIS::FM_EMPHASIS_75_USEC;
-	//p.FrequencyMin = 87500;
-	//p.FrequencyMax = 108000;
-	//p.FrequencySpacing = 50;
-	//auto res = devv->SetRegionParams(&p, INVALID_HANDLE_VALUE);
-	//std::wcout << "Error message: " << std::error_code(res, std::system_category()).message() << std::endl;
-
-	//std::wcout << "Tuning." << std::endl;
-	//res = devv->Tune(87500, INVALID_HANDLE_VALUE);
-	//std::wcout << "Error message: " << std::error_code(res, std::system_category()).message() << std::endl;
-
-	//std::wcout << "Setting volume." << std::endl;
-	//res = MiniportTuner->SetVolume(0);
-	//std::wcout << "Error message: " << std::error_code(res, std::system_category()).message() << std::endl;
-
-	//Sleep(1000);
-	//std::wcout << "Test ran to conclusion. Streaming FM audio." << std::endl;
+	using namespace NotifierHandles;
+	Notifier.OnRadioEvent(AsyncContextToHANDLE(AsyncContextHandle::PlayStateChange));
 }
 
 void CommandListener::DisableRadio()
 {
 	TopologyController.SetFmState(false);
-	Notifier.OnRadioEvent(reinterpret_cast<HANDLE>(2));
+
+	using namespace NotifierHandles;
+	Notifier.OnRadioEvent(AsyncContextToHANDLE(AsyncContextHandle::PlayStateChange));
 }
 
 void CommandListener::SeekForwards()
 {
-	Windows::CheckedMemberAPICall(MiniportReceiveDevice, &IMiniportFmRxDevice::Seek, FM_SEEKDIR::FM_SEEKDIR_FORWARD, reinterpret_cast<HANDLE>(1));
+	Windows::CheckedMemberAPICall(
+		MiniportReceiveDevice,
+		&IMiniportFmRxDevice::Seek,
+		FM_SEEKDIR::FM_SEEKDIR_FORWARD,
+		NotifierHandles::AsyncContextToHANDLE(NotifierHandles::AsyncContextHandle::FrequencyChange)
+	);
 }
 
 void CommandListener::SeekBackwards()
 {
-	Windows::CheckedMemberAPICall(MiniportReceiveDevice, &IMiniportFmRxDevice::Seek, FM_SEEKDIR::FM_SEEKDIR_BACKWARD, reinterpret_cast<HANDLE>(1));
+	Windows::CheckedMemberAPICall(
+		MiniportReceiveDevice,
+		&IMiniportFmRxDevice::Seek,
+		FM_SEEKDIR::FM_SEEKDIR_BACKWARD,
+		NotifierHandles::AsyncContextToHANDLE(NotifierHandles::AsyncContextHandle::FrequencyChange)
+	);
 }

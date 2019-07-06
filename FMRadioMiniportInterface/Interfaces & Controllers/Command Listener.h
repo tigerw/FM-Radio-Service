@@ -38,9 +38,9 @@ public:
 	/// </remarks>
 	/// <returns>A <see cref="Notification" /> structure for the client to update its UI.</returns>
 	/// <seealso cref="EventNotifier::AcquireEvent" />
-	Notification AcquireEvent();
+	void AcquireEvent(Client, Notification *);
 
-	void QueueInitialStateEvents();
+	Client AcquireClientId();
 
 	void EnableRadio();
 	void DisableRadio();
