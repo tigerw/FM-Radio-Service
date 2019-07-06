@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Audio API">
+      <UniqueIdentifier>{e044d904-5bad-4b5e-9c23-bb96acf26112}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interfaces &amp; Controllers">
+      <UniqueIdentifier>{21e9915d-4a4c-4626-b41c-e9cc3d408b87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio API\Header Files">
+      <UniqueIdentifier>{33110e49-40c5-4f1c-ac20-a0ebdde7c603}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interfaces">
+      <UniqueIdentifier>{c238d78b-fd8c-4181-9fc5-c6ee1c09d0ea}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Interfaces &amp; Controllers\Command Listener.h">
+      <Filter>Interfaces &amp; Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces &amp; Controllers\Event Notifier.h">
+      <Filter>Interfaces &amp; Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces &amp; Controllers\RPC Server.h">
+      <Filter>Interfaces &amp; Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces &amp; Controllers\Topology Controller.h">
+      <Filter>Interfaces &amp; Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio API\FM Receive Port Device.h">
+      <Filter>Audio API</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio API\FM Tuner Port Device.h">
+      <Filter>Audio API</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio API\Header Files\AudioTunerAPI.h">
+      <Filter>Audio API\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio API\Header Files\AudioTunerDef.h">
+      <Filter>Audio API\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio API\Header Files\AudioTunerDrv.h">
+      <Filter>Audio API\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio API\Header Files\AudioTunerProp.h">
+      <Filter>Audio API\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio API\Header Files\AvApi.h">
+      <Filter>Audio API\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio API\Header Files\AvError.h">
+      <Filter>Audio API\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Checked Windows API Calls.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FMRadioMiniportInterface.cpp" />
+    <ClCompile Include="Interfaces &amp; Controllers\Command Listener.cpp">
+      <Filter>Interfaces &amp; Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Interfaces &amp; Controllers\Event Notifier.cpp">
+      <Filter>Interfaces &amp; Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Interfaces &amp; Controllers\Topology Controller.cpp">
+      <Filter>Interfaces &amp; Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Miniport Service Interface.acf">
+      <Filter>Interfaces</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="Miniport Service Interface.idl">
+      <Filter>Interfaces</Filter>
+    </Midl>
+  </ItemGroup>
+</Project>
