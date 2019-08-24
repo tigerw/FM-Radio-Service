@@ -9,6 +9,8 @@ class FakePortFmRx : public IPortFmRxDevice
 		/* [in] */ const RDS_GROUP * pRdsGroup) final override
 	{
 		std::wcout << "#2: Processing RDS group!" << std::endl;
+		wprintf(L"FM: Miniport: block 1 is %x, block2 is %x, block3 is %x, block4 is %x\n",
+			pRdsGroup->wBlockA, pRdsGroup->wBlockB, pRdsGroup->wBlockC, pRdsGroup->wBlockD);
 		return S_OK;
 	}
 

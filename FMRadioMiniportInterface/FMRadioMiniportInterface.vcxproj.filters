@@ -29,9 +29,6 @@
     <ClInclude Include="Interfaces &amp; Controllers\RPC Server.h">
       <Filter>Interfaces &amp; Controllers</Filter>
     </ClInclude>
-    <ClInclude Include="Interfaces &amp; Controllers\Topology Controller.h">
-      <Filter>Interfaces &amp; Controllers</Filter>
-    </ClInclude>
     <ClInclude Include="Audio API\FM Receive Port Device.h">
       <Filter>Audio API</Filter>
     </ClInclude>
@@ -57,6 +54,15 @@
       <Filter>Audio API\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Checked Windows API Calls.h" />
+    <ClInclude Include="Interfaces &amp; Controllers\Radio Topology.h">
+      <Filter>Interfaces &amp; Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Notifier Handles.h">
+      <Filter>Interfaces &amp; Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces &amp; Controllers\Qualcomm Miniport Proxy.h">
+      <Filter>Interfaces &amp; Controllers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FMRadioMiniportInterface.cpp" />
@@ -66,10 +72,16 @@
     <ClCompile Include="Interfaces &amp; Controllers\Event Notifier.cpp">
       <Filter>Interfaces &amp; Controllers</Filter>
     </ClCompile>
-    <ClCompile Include="Interfaces &amp; Controllers\Topology Controller.cpp">
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Interfaces &amp; Controllers\Radio Topology.cpp">
       <Filter>Interfaces &amp; Controllers</Filter>
     </ClCompile>
-    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Interfaces &amp; Controllers\Notifier Handles.cpp">
+      <Filter>Interfaces &amp; Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Interfaces &amp; Controllers\Qualcomm Miniport Proxy.cpp">
+      <Filter>Interfaces &amp; Controllers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Miniport Service Interface.acf">
@@ -80,5 +92,10 @@
     <Midl Include="Miniport Service Interface.idl">
       <Filter>Interfaces</Filter>
     </Midl>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

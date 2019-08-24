@@ -13,7 +13,6 @@ public:
 	{
 	}
 
-	[[ nodiscard ]]
 	HRESULT STDMETHODCALLTYPE SendTunerEvent(
 		[[ maybe_unused ]] /* [in] */ REFGUID rguidEventId,
 		[[ maybe_unused ]] /* [in] */ AV_VARIANT * pavvParam) final override

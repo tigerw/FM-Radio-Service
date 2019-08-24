@@ -1,27 +1,36 @@
 #pragma once
 
 #include "pch.h"
+#include "Qualcomm Miniport Proxy.h"
 #include "Miniport Service Interface_h.h"
-#include "Interfaces & Controllers/Topology Controller.h"
+#include "Interfaces & Controllers/Radio Topology.h"
 
 /// <summary>Encapsulates a queue storing asynchronous radio events and the ability to wait for a new one and process it.</summary>
 /// <remarks>Allows our <see cref="IPortTunerDevice" /> and <see cref="CommandListener" /> to know about the queue without a circular dependency.</remarks>
 class EventNotifier
 {
+	enum class EventBit : size_t
+	{
+		Frequency = 0,
+		PlayState = 1,
+		Shutdown = 2,
+		AntennaStatus = 3,
+		RDS = 4,
+		Count
+	};
+
 	IMiniportFmRxDevice *& MiniportReceiveDevice;
-	FmController & TopologyController;
+	RadioTopology & TopologyController;
+	QualcommMiniportProxy & LibraryProxy;
 
 	std::mutex EventsMutex;
-	std::unordered_map<Client, std::bitset<2>> Events;
+	std::unordered_map<Client, std::bitset<static_cast<size_t>(EventBit::Count)>> Events;
 	std::condition_variable NewEvent;
 
-	static const size_t FrequencyBit = 0;
-	static const size_t PlayStateBit = 1;
-
-	size_t AsyncContextToBit(HTUNER_ASYNCCTXT);
+	EventBit AsyncContextToBit(HTUNER_ASYNCCTXT);
 
 public:
-	EventNotifier(IMiniportFmRxDevice *&, FmController &);
+	EventNotifier(IMiniportFmRxDevice *&, RadioTopology &, QualcommMiniportProxy &);
 
 	/// <summary>Blocks until there is one new event in the queue, then processes it.</summary>
 	/// <remarks>Should be called in a loop to continuously process asynchronous events.</remarks>
@@ -31,16 +40,6 @@ public:
 	void OnRadioEvent(HTUNER_ASYNCCTXT);
 
 	void OnClientAdded(Client);
+
+	void Shutdown();
 };
-
-namespace NotifierHandles
-{
-	enum class AsyncContextHandle
-	{
-		/* Start at 1 since this is type-punned into a HANDLE pointer, and we all know what a 0 pointer means... */
-		FrequencyChange = 1,
-		PlayStateChange = 2
-	};
-
-	HTUNER_ASYNCCTXT AsyncContextToHANDLE(AsyncContextHandle);
-}

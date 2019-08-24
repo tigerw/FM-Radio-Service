@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "RPC Server.h"
 #include "Command Listener.h"
+#include "Notifier Handles.h"
 #include "Checked Windows API Calls.h"
 #include "Miniport Service Interface_s.c"
 
@@ -31,6 +32,16 @@ void SeekBackwards()
 	Server->SeekBackwards();
 }
 
+void SetAudioEndpoint(AudioEndpoint Endpoint)
+{
+	Server->SetAudioEndpoint(Endpoint);
+}
+
+void SetFrequency(FrequencyType Frequency)
+{
+	Server->SetFrequency(Frequency);
+}
+
 void EnableRadio()
 {
 	Server->EnableRadio();
@@ -41,15 +52,22 @@ void AcquireEvent(Client ClientId, Notification * Event)
 	Server->AcquireEvent(ClientId, Event);
 }
 
+void AcquireInitialState()
+{
+	Server->AcquireInitialState();
+}
+
 Client AcquireClientId()
 {
 	return Server->AcquireClientId();
 }
 
-CommandListener::CommandListener(FmController & Controller) :
-	PortTunerDevice(PortReceiveDevice, Notifier),
+CommandListener::CommandListener(RadioTopology & Controller) :
+	LibraryProxy(MiniportReceiveDevice),
 	TopologyController(Controller),
-	Notifier(MiniportReceiveDevice, Controller)
+	Notifier(MiniportReceiveDevice, Controller, LibraryProxy),
+	PortTunerDevice(PortReceiveDevice, Notifier),
+	NextClientId(0)
 {
 	Server = this;
 
@@ -68,14 +86,26 @@ CommandListener::CommandListener(FmController & Controller) :
 	// TODO: check for errors
 	MiniportTunerDevice->QueryInterface(IID_IMiniportFmRxDevice, reinterpret_cast<void **>(&MiniportReceiveDevice));
 
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+
 	Windows::CheckedMemberAPICall(MiniportTunerDevice, &IMiniportTunerDevice::SetPowerState, TUNER_POWERSTATE::TUNER_POWERSTATE_ON, INVALID_HANDLE_VALUE);
+
+	// Service occasionally crashes on operating system boot inside the miniport DLL
+	// Seems to be related to these two calls and a race condition internally?
+	std::this_thread::sleep_for(std::chrono::seconds(5));
 
 	FM_REGIONPARAMS p;
 	p.Emphasis = FM_EMPHASIS::FM_EMPHASIS_75_USEC;
 	p.FrequencyMin = 87500;
 	p.FrequencyMax = 108000;
 	p.FrequencySpacing = 50;
-	Windows::CheckedMemberAPICall(MiniportReceiveDevice, &IMiniportFmRxDevice::SetRegionParams, &p, INVALID_HANDLE_VALUE);
+
+	using namespace NotifierHandles;
+	Windows::CheckedMemberAPICall(MiniportReceiveDevice, &IMiniportFmRxDevice::SetRegionParams, &p, INVALID_HANDLE_VALUE /*AsyncContextToHANDLE(AsyncContextHandle::PlayStateChange)*/);
+
+	Controller.OnAntennaStatusChange = [this] {
+		Notifier.OnRadioEvent(AsyncContextToHANDLE(AsyncContextHandle::AntennaStatusChange));
+	};
 }
 
 CommandListener::~CommandListener()
@@ -89,20 +119,31 @@ void CommandListener::Listen()
 	RPCServer::Listen(MiniportServiceInterface_v1_0_s_ifspec, Endpoint);
 }
 
+void CommandListener::Shutdown()
+{
+	Windows::CheckedRPCCall(RpcMgmtStopServerListening, nullptr);
+	Notifier.Shutdown();
+
+	// RpcServerUnregisterIf(nullptr, nullptr, false); TODO: this seems to fail with RPC_S_UNKNOWN_MGR_TYPE
+}
+
 void CommandListener::AcquireEvent(Client ClientId, Notification * Event)
 {
 	Notifier.AcquireEvent(ClientId, Event);
 }
 
-Client CommandListener::AcquireClientId()
+void CommandListener::AcquireInitialState()
 {
-	const auto ClientId = rand();
-	Notifier.OnClientAdded(ClientId);
-
 	using namespace NotifierHandles;
 	Notifier.OnRadioEvent(AsyncContextToHANDLE(AsyncContextHandle::FrequencyChange));
 	Notifier.OnRadioEvent(AsyncContextToHANDLE(AsyncContextHandle::PlayStateChange));
+}
 
+Client CommandListener::AcquireClientId()
+{
+	const auto ClientId = NextClientId++;
+	Notifier.OnClientAdded(ClientId);
+	Notifier.OnRadioEvent(NotifierHandles::AsyncContextToHANDLE(NotifierHandles::AsyncContextHandle::AntennaStatusChange));
 	return ClientId;
 }
 
@@ -140,4 +181,26 @@ void CommandListener::SeekBackwards()
 		FM_SEEKDIR::FM_SEEKDIR_BACKWARD,
 		NotifierHandles::AsyncContextToHANDLE(NotifierHandles::AsyncContextHandle::FrequencyChange)
 	);
+}
+
+void CommandListener::SetAudioEndpoint(AudioEndpoint Endpoint)
+{
+	switch (Endpoint)
+	{
+		case AudioEndpoint::Speakers:
+		{
+			TopologyController.SetFmEndpointId(0);
+			return;
+		}
+		case AudioEndpoint::Headset:
+		{
+			TopologyController.SetFmEndpointId(1);
+			return;
+		}
+	}
+}
+
+void CommandListener::SetFrequency(FrequencyType Frequency)
+{
+	LibraryProxy.SetFrequency(Frequency);
 }

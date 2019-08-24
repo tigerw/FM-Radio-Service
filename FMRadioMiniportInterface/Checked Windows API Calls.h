@@ -43,7 +43,7 @@ namespace Windows
 	static void CheckedRPCCall(FunctionType Function, ArgumentTypes ...Arguments)
 	{
 		const auto Result = Function(Arguments...);
-		if (Result == S_OK)
+		if (Result == RPC_S_OK)
 		{
 			return;
 		}

@@ -26,3 +26,6 @@
 #include <mutex>
 #include <condition_variable>
 #include <bitset>
+#include <future>
+#include <optional>
+#include <cstdlib>
