@@ -161,6 +161,11 @@ void CommandListener::DisableRadio()
 
 	using namespace NotifierHandles;
 	Notifier.OnRadioEvent(AsyncContextToHANDLE(AsyncContextHandle::PlayStateChange));
+
+	// "C:\Program Files (x86)\Windows Kits\10\bin\x86\Inf2Cat.exe" /driver:"." /os:10_RS4_ARM64
+
+	/*using namespace NotifierHandles;
+	Windows::CheckedMemberAPICall(MiniportTunerDevice, &IMiniportTunerDevice::SetPowerState, TUNER_POWERSTATE::TUNER_POWERSTATE_ON, AsyncContextToHANDLE(AsyncContextHandle::PlayStateChange));*/
 }
 
 void CommandListener::SeekForwards()
