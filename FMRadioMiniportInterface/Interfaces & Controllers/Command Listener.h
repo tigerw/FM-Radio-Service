@@ -58,4 +58,5 @@ public:
 	void SeekBackwards();
 	void SetAudioEndpoint(AudioEndpoint);
 	void SetFrequency(FrequencyType Frequency);
+	unsigned GetSignalQuality();
 };

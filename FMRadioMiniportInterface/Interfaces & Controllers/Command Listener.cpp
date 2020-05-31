@@ -42,6 +42,11 @@ void SetFrequency(FrequencyType Frequency)
 	Server->SetFrequency(Frequency);
 }
 
+unsigned GetSignalQuality()
+{
+	return Server->GetSignalQuality();
+}
+
 void EnableRadio()
 {
 	Server->EnableRadio();
@@ -63,7 +68,7 @@ Client AcquireClientId()
 }
 
 CommandListener::CommandListener(RadioTopology & Controller) :
-	LibraryProxy(MiniportReceiveDevice),
+	LibraryProxy(MiniportTunerDevice, MiniportReceiveDevice),
 	TopologyController(Controller),
 	Notifier(MiniportReceiveDevice, Controller, LibraryProxy),
 	PortTunerDevice(PortReceiveDevice, Notifier),
@@ -170,22 +175,12 @@ void CommandListener::DisableRadio()
 
 void CommandListener::SeekForwards()
 {
-	Windows::CheckedMemberAPICall(
-		MiniportReceiveDevice,
-		&IMiniportFmRxDevice::Seek,
-		FM_SEEKDIR::FM_SEEKDIR_FORWARD,
-		NotifierHandles::AsyncContextToHANDLE(NotifierHandles::AsyncContextHandle::FrequencyChange)
-	);
+	LibraryProxy.SeekForwards();
 }
 
 void CommandListener::SeekBackwards()
 {
-	Windows::CheckedMemberAPICall(
-		MiniportReceiveDevice,
-		&IMiniportFmRxDevice::Seek,
-		FM_SEEKDIR::FM_SEEKDIR_BACKWARD,
-		NotifierHandles::AsyncContextToHANDLE(NotifierHandles::AsyncContextHandle::FrequencyChange)
-	);
+	LibraryProxy.SeekBackwards();
 }
 
 void CommandListener::SetAudioEndpoint(AudioEndpoint Endpoint)
@@ -208,4 +203,9 @@ void CommandListener::SetAudioEndpoint(AudioEndpoint Endpoint)
 void CommandListener::SetFrequency(FrequencyType Frequency)
 {
 	LibraryProxy.SetFrequency(Frequency);
+}
+
+unsigned CommandListener::GetSignalQuality()
+{
+	return LibraryProxy.GetSignalQuality();
 }

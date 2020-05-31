@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <RemoteDebuggerServerName>MICROSOFT-LUMIA-950XL:4024</RemoteDebuggerServerName>
+    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
+    <RemoteDebuggerCommand>C:\deploy\$(TargetName)</RemoteDebuggerCommand>
+    <DeploymentDirectory>C:\deploy</DeploymentDirectory>
+    <RemoteDebuggerWorkingDirectory>C:\deploy</RemoteDebuggerWorkingDirectory>
+    <RemoteDebuggerDebuggerType>NativeOnly</RemoteDebuggerDebuggerType>
+    <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <RemoteDebuggerCommand>C:\deploy\$(TargetName)</RemoteDebuggerCommand>
+    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
+    <RemoteDebuggerWorkingDirectory>C:\deploy</RemoteDebuggerWorkingDirectory>
+    <RemoteDebuggerServerName>MICROSOFT-LUMIA-950XL:4024</RemoteDebuggerServerName>
+    <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
+    <DeploymentDirectory>C:\deploy</DeploymentDirectory>
+    <RemoteDebuggerDebuggerType>NativeOnly</RemoteDebuggerDebuggerType>
+  </PropertyGroup>
+</Project>

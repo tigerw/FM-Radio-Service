@@ -44,7 +44,6 @@ void ServiceWorker()
 		std::launch::async,
 		[] {
 			RadioTopology FM;
-			FM.SetFmVolume(-1000000);
 
 			CommandListener Server(FM);
 			GlobalCommandListener = &Server;

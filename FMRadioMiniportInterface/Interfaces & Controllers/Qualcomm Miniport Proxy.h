@@ -6,14 +6,21 @@
 class QualcommMiniportProxy
 {
 	std::mutex LibraryLock;
+	IMiniportTunerDevice *& MiniportTunerDevice;
 	IMiniportFmRxDevice *& MiniportReceiveDevice;
 
 public:
 
-	QualcommMiniportProxy(IMiniportFmRxDevice *& MiniportReceiveDevice);
+	QualcommMiniportProxy(IMiniportTunerDevice *& MiniportTunerDevice, IMiniportFmRxDevice *& MiniportReceiveDevice);
+
+	void SeekForwards();
+
+	void SeekBackwards();
 
 	void SetFrequency(FrequencyType Frequency);
 
 	FrequencyType GetFrequency();
+
+	unsigned GetSignalQuality();
 
 };
